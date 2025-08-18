@@ -58,10 +58,10 @@ setup: clean-all
 	@yarn db:generate || (echo "$(RED)Failed to generate Prisma client$(NC)" && exit 1)
 	
 	@echo "\n$(YELLOW)Step 6/8: Running database migrations...$(NC)"
-	@cd packages/database && npx dotenv -e ../../.env -- npx prisma migrate deploy || \
+	@cd packages/database && yarn dotenv -e ../../.env -- yarn prisma migrate deploy || \
 		(echo "$(YELLOW)Migration deployment failed, attempting to resolve...$(NC)" && \
-		npx dotenv -e ../../.env -- npx prisma migrate resolve --applied "20250817014247_initial" 2>/dev/null || \
-		npx dotenv -e ../../.env -- npx prisma migrate dev --name initial --skip-seed) || \
+		yarn dotenv -e ../../.env -- yarn prisma migrate resolve --applied "20250817014247_initial" 2>/dev/null || \
+		yarn dotenv -e ../../.env -- yarn prisma migrate dev --name initial --skip-seed) || \
 		(echo "$(RED)Failed to setup migrations$(NC)" && exit 1)
 	
 	@echo "\n$(YELLOW)Step 7/8: Building all packages...$(NC)"
@@ -190,9 +190,9 @@ docker-restart:
 
 db-migrate:
 	@echo "$(YELLOW)Applying database migrations...$(NC)"
-	@cd packages/database && npx dotenv -e ../../.env -- npx prisma migrate deploy || \
+	@cd packages/database && yarn dotenv -e ../../.env -- yarn prisma migrate deploy || \
 		(echo "$(YELLOW)Creating migrations if needed...$(NC)" && \
-		npx dotenv -e ../../.env -- npx prisma migrate dev --skip-seed)
+		yarn dotenv -e ../../.env -- yarn prisma migrate dev --skip-seed)
 
 db-seed:
 	@echo "$(YELLOW)Seeding database...$(NC)"

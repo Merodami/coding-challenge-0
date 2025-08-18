@@ -34,28 +34,28 @@
     "prisma:generate": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "tsx prisma/merge.ts && prisma generate --schema=prisma/schema.prisma",
+        "command": "npx tsx prisma/merge.ts && npx prisma generate --schema=prisma/schema.prisma",
         "cwd": "{projectRoot}"
       }
     },
     "prisma:migrate:dev": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "tsx prisma/merge.ts && prisma migrate dev --schema=prisma/schema.prisma",
+        "command": "npx tsx prisma/merge.ts && npx prisma migrate dev --schema=prisma/schema.prisma",
         "cwd": "{projectRoot}"
       }
     },
     "prisma:migrate:deploy": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "prisma migrate deploy --schema=prisma/schema.prisma",
+        "command": "npx prisma migrate deploy --schema=prisma/schema.prisma",
         "cwd": "{projectRoot}"
       }
     },
     "prisma:seed": {
       "executor": "nx:run-commands",
       "options": {
-        "commands": ["tsx prisma/seed/index.ts"],
+        "commands": ["npx tsx prisma/seed/index.ts"],
         "cwd": "{projectRoot}"
       }
     }
