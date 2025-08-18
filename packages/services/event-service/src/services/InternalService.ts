@@ -155,5 +155,4 @@ export class InternalService implements IInternalService {
       return null
     }
   }
-
 }

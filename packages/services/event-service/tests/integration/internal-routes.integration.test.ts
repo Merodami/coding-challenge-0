@@ -23,7 +23,7 @@ describe('Internal Routes Integration Tests', () => {
 
   beforeAll(async () => {
     setupTestEnvironment()
-    
+
     // Set SERVICE_API_KEY for testing
     process.env.SERVICE_API_KEY = SERVICE_API_KEY
 
@@ -56,7 +56,8 @@ describe('Internal Routes Integration Tests', () => {
           success: false,
           error: {
             code: 'SERVICE_API_KEY_INVALID',
-            message: 'Authentication failed: Invalid or missing service API key',
+            message:
+              'Authentication failed: Invalid or missing service API key',
           },
         })
       })
@@ -72,7 +73,8 @@ describe('Internal Routes Integration Tests', () => {
           success: false,
           error: {
             code: 'SERVICE_API_KEY_INVALID',
-            message: 'Authentication failed: Invalid or missing service API key',
+            message:
+              'Authentication failed: Invalid or missing service API key',
           },
         })
       })
@@ -117,9 +119,9 @@ describe('Internal Routes Integration Tests', () => {
         const response = await request(app)
           .post('/internal/sync')
           .set('x-service-api-key', SERVICE_API_KEY)
-          .send({ 
+          .send({
             force: true,
-            priority: 5 
+            priority: 5,
           })
 
         expect(response.status).toBe(200)
@@ -130,9 +132,9 @@ describe('Internal Routes Integration Tests', () => {
         const response = await request(app)
           .post('/internal/sync')
           .set('x-service-api-key', SERVICE_API_KEY)
-          .send({ 
+          .send({
             force: true,
-            delay: 5000 
+            delay: 5000,
           })
 
         expect(response.status).toBe(200)
@@ -200,15 +202,15 @@ describe('Internal Routes Integration Tests', () => {
   describe('GET /internal/sync/status', () => {
     describe('Authentication', () => {
       it('should return 401 when x-service-api-key header is missing', async () => {
-        const response = await request(app)
-          .get('/internal/sync/status')
+        const response = await request(app).get('/internal/sync/status')
 
         expect(response.status).toBe(401)
         expect(response.body).toEqual({
           success: false,
           error: {
             code: 'SERVICE_API_KEY_INVALID',
-            message: 'Authentication failed: Invalid or missing service API key',
+            message:
+              'Authentication failed: Invalid or missing service API key',
           },
         })
       })
@@ -223,7 +225,8 @@ describe('Internal Routes Integration Tests', () => {
           success: false,
           error: {
             code: 'SERVICE_API_KEY_INVALID',
-            message: 'Authentication failed: Invalid or missing service API key',
+            message:
+              'Authentication failed: Invalid or missing service API key',
           },
         })
       })
@@ -253,7 +256,7 @@ describe('Internal Routes Integration Tests', () => {
         expect(response.body.queue).toHaveProperty('failed')
         expect(response.body.queue).toHaveProperty('delayed')
         expect(response.body.queue).toHaveProperty('total')
-        
+
         // All counts should be numbers
         expect(typeof response.body.queue.waiting).toBe('number')
         expect(typeof response.body.queue.active).toBe('number')
@@ -270,26 +273,30 @@ describe('Internal Routes Integration Tests', () => {
 
         const { queue } = response.body
         const expectedTotal = queue.waiting + queue.active + queue.delayed
-        
+
         expect(queue.total).toBe(expectedTotal)
       })
 
       it('should include lastSync when available', async () => {
         // Mock storing a sync result
         const cacheService = await initializeCache()
-        await cacheService.set('event-service:last-sync', {
-          timestamp: new Date().toISOString(),
-          eventsProcessed: 10,
-          duration: 1500,
-          success: true,
-        }, 3600)
+        await cacheService.set(
+          'event-service:last-sync',
+          {
+            timestamp: new Date().toISOString(),
+            eventsProcessed: 10,
+            duration: 1500,
+            success: true,
+          },
+          3600,
+        )
 
         const response = await request(app)
           .get('/internal/sync/status')
           .set('x-service-api-key', SERVICE_API_KEY)
 
         expect(response.status).toBe(200)
-        
+
         if (response.body.lastSync) {
           expect(response.body.lastSync).toHaveProperty('timestamp')
           expect(response.body.lastSync).toHaveProperty('eventsProcessed')
@@ -326,7 +333,9 @@ describe('Internal Routes Integration Tests', () => {
         success: expect.any(Boolean),
         jobId: expect.any(String),
         message: expect.any(String),
-        timestamp: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/)
+        timestamp: expect.stringMatching(
+          /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/,
+        ),
       })
     })
 
@@ -344,12 +353,14 @@ describe('Internal Routes Integration Tests', () => {
           failed: expect.any(Number),
           delayed: expect.any(Number),
           total: expect.any(Number),
-        }
+        },
       })
 
       if (response.body.lastSync) {
         expect(response.body.lastSync).toMatchObject({
-          timestamp: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/),
+          timestamp: expect.stringMatching(
+            /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/,
+          ),
           eventsProcessed: expect.any(Number),
           duration: expect.any(Number),
           success: expect.any(Boolean),

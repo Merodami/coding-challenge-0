@@ -18,6 +18,14 @@
 
 </div>
 
+## 📋 Challenge Implementation
+
+> **This repository contains the complete implementation of the Fever coding challenge.**
+> 
+> 📄 **[View the original challenge requirements →](./challenge/CHALLENGE.md)**
+> 
+> The challenge asked for an event service that integrates with an external provider's XML API, handles unreliable network conditions, and provides a clean REST API for event search. This implementation goes beyond the basic requirements to deliver a production-ready, enterprise-grade solution.
+
 ## 🎯 Mission
 
 **Solving the Event Integration Challenge**: We've built the definitive solution for integrating diverse event data from unreliable external providers while maintaining sub-second response times and enterprise-grade reliability. This service acts as an intelligent, resilient bridge between Fever's marketplace and external event ecosystems.

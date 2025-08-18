@@ -52,18 +52,14 @@ export class ServiceAuthenticatedRequestClient {
    * PATCH request with automatic service API key authentication
    */
   patch(url: string) {
-    return this.request
-      .patch(url)
-      .set('x-service-api-key', this.serviceApiKey)
+    return this.request.patch(url).set('x-service-api-key', this.serviceApiKey)
   }
 
   /**
    * DELETE request with automatic service API key authentication
    */
   delete(url: string) {
-    return this.request
-      .delete(url)
-      .set('x-service-api-key', this.serviceApiKey)
+    return this.request.delete(url).set('x-service-api-key', this.serviceApiKey)
   }
 
   /**
