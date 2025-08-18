@@ -1,0 +1,89 @@
+/// Base Plan model - represents an event in the provider's system
+model BasePlan {
+  id                  String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  basePlanId          String    @unique @map("base_plan_id") @db.VarChar(255)
+  title               String    @db.VarChar(500)
+  organizerCompanyId  String?   @map("organizer_company_id") @db.VarChar(255)
+  sellMode            SellMode  @default(online) @map("sell_mode")
+  
+  // Tracking fields
+  firstSeenAt         DateTime  @default(now()) @map("first_seen_at") @db.Timestamptz(6)
+  lastSeenAt          DateTime  @default(now()) @updatedAt @map("last_seen_at") @db.Timestamptz(6)
+  deletedAt           DateTime? @map("deleted_at") @db.Timestamptz(6)
+  
+  // Relations
+  plans               Plan[]
+  
+  // Indexes
+  @@index([sellMode])
+  @@index([lastSeenAt])
+  @@index([deletedAt])
+  @@index([title])
+  @@map("base_plans")
+}
+
+/// Plan model - represents a specific instance/session of an event
+model Plan {
+  id                  String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  basePlanId          String    @map("base_plan_id") @db.Uuid
+  planId              String    @map("plan_id") @db.VarChar(255)
+  
+  // Date/time fields from XML
+  planStartDate       DateTime  @map("plan_start_date") @db.Timestamptz(6)
+  planEndDate         DateTime  @map("plan_end_date") @db.Timestamptz(6)
+  sellFrom            DateTime? @map("sell_from") @db.Timestamptz(6)
+  sellTo              DateTime? @map("sell_to") @db.Timestamptz(6)
+  
+  // Status
+  soldOut             Boolean   @default(false) @map("sold_out")
+  
+  // Price range (computed from zones for performance)
+  minPrice            Decimal?  @map("min_price") @db.Decimal(10, 2)
+  maxPrice            Decimal?  @map("max_price") @db.Decimal(10, 2)
+  
+  // Raw data from provider
+  rawData             Json?     @map("raw_data") @db.JsonB
+  
+  // Tracking fields
+  firstSeenAt         DateTime  @default(now()) @map("first_seen_at") @db.Timestamptz(6)
+  lastSeenAt          DateTime  @default(now()) @updatedAt @map("last_seen_at") @db.Timestamptz(6)
+  deletedAt           DateTime? @map("deleted_at") @db.Timestamptz(6)
+  
+  // Relations
+  basePlan            BasePlan  @relation(fields: [basePlanId], references: [id], onDelete: Cascade)
+  zones               Zone[]
+  
+  // Indexes for date range queries (critical for performance)
+  @@index([planStartDate, planEndDate])
+  @@index([basePlanId])
+  @@index([deletedAt])
+  @@index([planStartDate])
+  @@index([planEndDate])
+  @@unique([basePlanId, planId]) // Composite unique key since planId can repeat
+  @@map("plans")
+}
+
+/// Zone model - pricing and capacity information
+model Zone {
+  id                  String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  planId              String    @map("plan_id") @db.Uuid
+  zoneId              String    @map("zone_id") @db.VarChar(255)
+  
+  // Zone details from XML
+  name                String?   @db.VarChar(255)
+  capacity            Int?
+  price               Decimal   @db.Decimal(10, 2)
+  numbered            Boolean   @default(false)
+  
+  // Tracking fields
+  firstSeenAt         DateTime  @default(now()) @map("first_seen_at") @db.Timestamptz(6)
+  lastSeenAt          DateTime  @default(now()) @updatedAt @map("last_seen_at") @db.Timestamptz(6)
+  
+  // Relations
+  plan                Plan      @relation(fields: [planId], references: [id], onDelete: Cascade)
+  
+  // Indexes
+  @@index([planId])
+  // Note: zone_id can repeat within a plan, so not unique
+  @@map("zones")
+}

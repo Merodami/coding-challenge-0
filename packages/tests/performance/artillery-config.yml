@@ -1,0 +1,157 @@
+# Artillery Performance Test Configuration
+#
+# This configuration tests the Event Service under various load conditions
+# to validate performance requirements from CHALLENGE.md
+
+config:
+  target: 'http://localhost:5500'
+  phases:
+    # Phase 1: Warm-up (30 seconds, 10 requests/sec)
+    - duration: 30
+      arrivalRate: 10
+      name: 'Warm-up'
+
+    # Phase 2: Ramp-up (1 minute, increase to 50 requests/sec)
+    - duration: 60
+      arrivalRate: 50
+      rampTo: 100
+      name: 'Ramp-up'
+
+    # Phase 3: Sustained Load (5 minutes, 100 requests/sec)
+    - duration: 300
+      arrivalRate: 100
+      name: 'Sustained Load'
+
+    # Phase 4: Stress Test (2 minutes, 200 requests/sec)
+    - duration: 120
+      arrivalRate: 200
+      name: 'Stress Test'
+
+    # Phase 5: Spike Test (30 seconds, 500 requests/sec)
+    - duration: 30
+      arrivalRate: 500
+      name: 'Spike Test'
+
+    # Phase 6: Cool-down (30 seconds, 10 requests/sec)
+    - duration: 30
+      arrivalRate: 10
+      name: 'Cool-down'
+
+  # Payload configuration
+  payload:
+    - path: './test-data.csv'
+      fields:
+        - 'starts_at'
+        - 'ends_at'
+      order: sequence
+      skipHeader: true
+
+  # Default headers
+  defaults:
+    headers:
+      x-api-key: 'fever-poc-api-key-2025'
+
+  # Plugins
+  plugins:
+    expect: {}
+    metrics-by-endpoint: {}
+
+  # Processor for custom logic
+  processor: './artillery-processor.cjs'
+
+# Scenarios - Different user behaviors
+scenarios:
+  # Scenario 1: Search Events (70% of traffic)
+  - weight: 70
+    name: 'Search Events'
+    flow:
+      - get:
+          url: '/api/v1/search?starts_at={{ starts_at }}&ends_at={{ ends_at }}'
+          expect:
+            - statusCode: 200
+            - contentType: application/json
+            - hasProperty: data.events
+            - responseTime:
+                - under: 300 # Sub-300ms requirement
+          capture:
+            - json: '$.data.events[0].id'
+              as: 'eventId'
+            - json: '$.data.events.length'
+              as: 'eventCount'
+
+      # Think time between requests (simulate real user)
+      - think: 2
+
+  # Scenario 2: Different Date Ranges (15% of traffic)
+  - weight: 15
+    name: 'Search Various Ranges'
+    flow:
+      - function: 'generateDateRange'
+      - get:
+          url: '/api/v1/search?starts_at={{ starts_at }}&ends_at={{ ends_at }}'
+          expect:
+            - statusCode: 200
+            - hasProperty: data.events
+            - responseTime:
+                - under: 300
+          capture:
+            - json: '$.data.events.length'
+              as: 'eventCount'
+
+      - think: 1
+
+  # Scenario 3: Health Check (10% of traffic)
+  - weight: 10
+    name: 'Health Check'
+    flow:
+      - get:
+          url: '/health'
+          expect:
+            - statusCode: 200
+            - responseTime:
+                - under: 50
+
+      - think: 5
+
+  # Scenario 4: Mixed Date Range Searches (5% of traffic)
+  - weight: 5
+    name: 'Mixed Search Operations'
+    flow:
+      # Search Q1
+      - get:
+          url: '/api/v1/search?starts_at=2021-01-01T00:00:00Z&ends_at=2021-03-31T23:59:59Z'
+          expect:
+            - statusCode: 200
+            - responseTime:
+                - under: 300
+
+      - think: 1
+
+      # Search Q2
+      - get:
+          url: '/api/v1/search?starts_at=2021-04-01T00:00:00Z&ends_at=2021-06-30T23:59:59Z'
+          expect:
+            - statusCode: 200
+            - responseTime:
+                - under: 300
+
+      - think: 2
+
+      # Search full year
+      - get:
+          url: '/api/v1/search?starts_at=2021-01-01T00:00:00Z&ends_at=2021-12-31T23:59:59Z'
+          expect:
+            - statusCode: 200
+            - responseTime:
+                - under: 300
+
+# Performance expectations
+expect:
+  # P95 response time should be under 300ms
+  p95: 300
+  # P99 response time should be under 500ms
+  p99: 500
+  # Maximum response time should be under 1000ms
+  max: 1000
+  # Minimum response time (sanity check)
+  min: 10

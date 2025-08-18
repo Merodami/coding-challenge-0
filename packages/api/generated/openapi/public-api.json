@@ -1,0 +1,1239 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Fever Event Service API",
+    "version": "1.0.0",
+    "description": "Public API for integrating external provider events into Fever marketplace.\n\n## Authentication\n\nThis API requires authentication via API key. Include the API key in the `x-api-key` header for all requests.\n\n**Default API Key for PoC Testing:** `fever-poc-api-key-2025`\n\n```bash\ncurl -H \"x-api-key: fever-poc-api-key-2025\" http://localhost:5500/api/v1/events/search\n```"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5500/api/v1",
+      "description": "Local Development (API Gateway)"
+    },
+    {
+      "url": "https://api.fever.com/v1",
+      "description": "Production"
+    },
+    {
+      "url": "https://api.staging.fever.com/v1",
+      "description": "Staging"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "apiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key",
+        "description": "API key for authentication. Default for PoC: `fever-poc-api-key-2025`"
+      }
+    },
+    "schemas": {
+      "PaginationMetadata": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "description": "Current page number"
+          },
+          "limit": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "description": "Items per page"
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Total number of items"
+          },
+          "totalPages": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Total number of pages"
+          },
+          "hasNext": {
+            "type": "boolean",
+            "description": "Whether there is a next page"
+          },
+          "hasPrev": {
+            "type": "boolean",
+            "description": "Whether there is a previous page"
+          }
+        },
+        "required": [
+          "page",
+          "limit",
+          "total",
+          "totalPages",
+          "hasNext",
+          "hasPrev"
+        ]
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "minimum": 100,
+            "maximum": 599
+          },
+          "error": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "field": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "field",
+                "message"
+              ]
+            }
+          },
+          "correlationId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Request correlation ID"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO 8601 datetime with timezone"
+          }
+        },
+        "required": [
+          "statusCode",
+          "error",
+          "message"
+        ]
+      },
+      "EventSortBy": {
+        "type": "string",
+        "enum": [
+          "title",
+          "startsAt",
+          "endsAt",
+          "minPrice",
+          "maxPrice",
+          "createdAt",
+          "updatedAt"
+        ],
+        "description": "Field to sort events by"
+      },
+      "EventId": {
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Event ID"
+          }
+        },
+        "required": [
+          "eventId"
+        ]
+      },
+      "EventZoneResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "capacity": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "price": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "numbered": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "price",
+          "numbered"
+        ]
+      },
+      "EventSessionResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "startsAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO 8601 datetime string with timezone"
+          },
+          "endsAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO 8601 datetime string with timezone"
+          },
+          "sellFrom": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO 8601 datetime string with timezone"
+          },
+          "sellTo": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO 8601 datetime string with timezone"
+          },
+          "soldOut": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "startsAt",
+          "endsAt",
+          "sellFrom",
+          "sellTo",
+          "soldOut"
+        ]
+      },
+      "EventResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "externalId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "imageUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "place": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "latitude": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90
+          },
+          "longitude": {
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180
+          },
+          "sellMode": {
+            "type": "string",
+            "enum": [
+              "online",
+              "offline",
+              "both"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive",
+              "deleted"
+            ]
+          },
+          "minPrice": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "maxPrice": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO 8601 datetime string with timezone"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO 8601 datetime string with timezone"
+          },
+          "sessions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "startsAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "ISO 8601 datetime string with timezone"
+                },
+                "endsAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "ISO 8601 datetime string with timezone"
+                },
+                "sellFrom": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "ISO 8601 datetime string with timezone"
+                },
+                "sellTo": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "ISO 8601 datetime string with timezone"
+                },
+                "soldOut": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "id",
+                "startsAt",
+                "endsAt",
+                "sellFrom",
+                "sellTo",
+                "soldOut"
+              ]
+            }
+          },
+          "zones": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "capacity": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "price": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "numbered": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "price",
+                "numbered"
+              ]
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO 8601 datetime string with timezone"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO 8601 datetime string with timezone"
+          }
+        },
+        "required": [
+          "id",
+          "externalId",
+          "title",
+          "sellMode",
+          "status",
+          "startDate",
+          "endDate",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "EventSearchParams": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "default": 1,
+            "description": "Page number"
+          },
+          "limit": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 100,
+            "default": 20,
+            "description": "Items per page"
+          },
+          "sortBy": {
+            "type": "string",
+            "enum": [
+              "title",
+              "startsAt",
+              "endsAt",
+              "minPrice",
+              "maxPrice",
+              "createdAt",
+              "updatedAt"
+            ],
+            "default": "startsAt",
+            "description": "Field to sort events by"
+          },
+          "sortOrder": {
+            "type": "string",
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "default": "desc",
+            "description": "Sort order"
+          },
+          "search": {
+            "type": "string",
+            "description": "Search query"
+          },
+          "fromDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Start date (ISO 8601)"
+          },
+          "toDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "End date (ISO 8601)"
+          },
+          "city": {
+            "type": "string",
+            "description": "Filter by city"
+          },
+          "country": {
+            "type": "string",
+            "description": "Filter by country"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive",
+              "deleted"
+            ],
+            "description": "Filter by status"
+          },
+          "sellMode": {
+            "type": "string",
+            "enum": [
+              "online",
+              "offline",
+              "both"
+            ],
+            "description": "Filter by sell mode"
+          },
+          "minPrice": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0,
+            "description": "Minimum price"
+          },
+          "maxPrice": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0,
+            "description": "Maximum price"
+          },
+          "include": {
+            "type": "string",
+            "description": "Comma-separated relations: sessions,zones"
+          }
+        }
+      },
+      "EventListResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "externalId": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "imageUrl": {
+                  "type": "string",
+                  "format": "uri"
+                },
+                "place": {
+                  "type": "string"
+                },
+                "city": {
+                  "type": "string"
+                },
+                "country": {
+                  "type": "string"
+                },
+                "latitude": {
+                  "type": "number",
+                  "minimum": -90,
+                  "maximum": 90
+                },
+                "longitude": {
+                  "type": "number",
+                  "minimum": -180,
+                  "maximum": 180
+                },
+                "sellMode": {
+                  "type": "string",
+                  "enum": [
+                    "online",
+                    "offline",
+                    "both"
+                  ]
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "active",
+                    "inactive",
+                    "deleted"
+                  ]
+                },
+                "minPrice": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "maxPrice": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "startDate": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "ISO 8601 datetime string with timezone"
+                },
+                "endDate": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "ISO 8601 datetime string with timezone"
+                },
+                "sessions": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "startsAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "ISO 8601 datetime string with timezone"
+                      },
+                      "endsAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "ISO 8601 datetime string with timezone"
+                      },
+                      "sellFrom": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "ISO 8601 datetime string with timezone"
+                      },
+                      "sellTo": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "ISO 8601 datetime string with timezone"
+                      },
+                      "soldOut": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "startsAt",
+                      "endsAt",
+                      "sellFrom",
+                      "sellTo",
+                      "soldOut"
+                    ]
+                  }
+                },
+                "zones": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "capacity": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "price": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "numbered": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "name",
+                      "price",
+                      "numbered"
+                    ]
+                  }
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "ISO 8601 datetime string with timezone"
+                },
+                "updatedAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "ISO 8601 datetime string with timezone"
+                }
+              },
+              "required": [
+                "id",
+                "externalId",
+                "title",
+                "sellMode",
+                "status",
+                "startDate",
+                "endDate",
+                "createdAt",
+                "updatedAt"
+              ]
+            },
+            "description": "Page items"
+          },
+          "pagination": {
+            "type": "object",
+            "properties": {
+              "page": {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "description": "Current page number"
+              },
+              "limit": {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "description": "Items per page"
+              },
+              "total": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Total number of items"
+              },
+              "totalPages": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Total number of pages"
+              },
+              "hasNext": {
+                "type": "boolean",
+                "description": "Whether there is a next page"
+              },
+              "hasPrev": {
+                "type": "boolean",
+                "description": "Whether there is a previous page"
+              }
+            },
+            "required": [
+              "page",
+              "limit",
+              "total",
+              "totalPages",
+              "hasNext",
+              "hasPrev"
+            ]
+          }
+        },
+        "required": [
+          "data",
+          "pagination"
+        ],
+        "description": "Paginated list of events"
+      },
+      "EventSummary": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Identifier for the plan (UUID)"
+          },
+          "title": {
+            "type": "string",
+            "description": "Title of the plan"
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date",
+            "description": "Date when the event starts in local time"
+          },
+          "start_time": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^([01]\\d|2[0-3]):([0-5]\\d):([0-5]\\d)$",
+            "description": "Time when the event starts in local time"
+          },
+          "end_date": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date",
+            "description": "Date when the event ends in local time"
+          },
+          "end_time": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^([01]\\d|2[0-3]):([0-5]\\d):([0-5]\\d)$",
+            "description": "Time when the event ends in local time"
+          },
+          "min_price": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Min price from all the available tickets"
+          },
+          "max_price": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Max price from all the available tickets"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "start_date",
+          "start_time",
+          "end_date",
+          "end_time",
+          "min_price",
+          "max_price"
+        ],
+        "description": "Event summary information for search results",
+        "example": {
+          "id": "550e8400-e29b-41d4-a716-446655440000",
+          "title": "Concert in the Park",
+          "start_date": "2024-06-30",
+          "start_time": "22:38:19",
+          "end_date": "2024-06-30",
+          "end_time": "14:45:15",
+          "min_price": 20,
+          "max_price": 50
+        }
+      },
+      "EventList": {
+        "type": "object",
+        "properties": {
+          "events": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "description": "Identifier for the plan (UUID)"
+                },
+                "title": {
+                  "type": "string",
+                  "description": "Title of the plan"
+                },
+                "start_date": {
+                  "type": "string",
+                  "format": "date",
+                  "description": "Date when the event starts in local time"
+                },
+                "start_time": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "pattern": "^([01]\\d|2[0-3]):([0-5]\\d):([0-5]\\d)$",
+                  "description": "Time when the event starts in local time"
+                },
+                "end_date": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date",
+                  "description": "Date when the event ends in local time"
+                },
+                "end_time": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "pattern": "^([01]\\d|2[0-3]):([0-5]\\d):([0-5]\\d)$",
+                  "description": "Time when the event ends in local time"
+                },
+                "min_price": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "description": "Min price from all the available tickets"
+                },
+                "max_price": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "description": "Max price from all the available tickets"
+                }
+              },
+              "required": [
+                "id",
+                "title",
+                "start_date",
+                "start_time",
+                "end_date",
+                "end_time",
+                "min_price",
+                "max_price"
+              ]
+            },
+            "description": "List of events matching search criteria"
+          },
+          "pagination": {
+            "type": "object",
+            "properties": {
+              "page": {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "description": "Current page number"
+              },
+              "limit": {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "description": "Items per page"
+              },
+              "total": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Total number of items"
+              },
+              "totalPages": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Total number of pages"
+              },
+              "hasNext": {
+                "type": "boolean",
+                "description": "Whether there is a next page"
+              },
+              "hasPrev": {
+                "type": "boolean",
+                "description": "Whether there is a previous page"
+              }
+            },
+            "required": [
+              "page",
+              "limit",
+              "total",
+              "totalPages",
+              "hasNext",
+              "hasPrev"
+            ],
+            "description": "Pagination metadata"
+          }
+        },
+        "required": [
+          "events",
+          "pagination"
+        ],
+        "description": "Container for event search results with pagination"
+      },
+      "EventSearchQuery": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "default": 1,
+            "description": "Page number"
+          },
+          "limit": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 100,
+            "default": 20,
+            "description": "Items per page"
+          },
+          "starts_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Return events starting after this date (ISO 8601)"
+          },
+          "ends_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Return events ending before this date (ISO 8601)"
+          }
+        },
+        "description": "Query parameters for event search",
+        "example": {
+          "starts_at": "2017-07-21T17:32:28Z",
+          "ends_at": "2021-07-21T17:32:28Z"
+        }
+      },
+      "SearchSuccessResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "events": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "description": "Identifier for the plan (UUID)"
+                    },
+                    "title": {
+                      "type": "string",
+                      "description": "Title of the plan"
+                    },
+                    "start_date": {
+                      "type": "string",
+                      "format": "date",
+                      "description": "Date when the event starts in local time"
+                    },
+                    "start_time": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "pattern": "^([01]\\d|2[0-3]):([0-5]\\d):([0-5]\\d)$",
+                      "description": "Time when the event starts in local time"
+                    },
+                    "end_date": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "date",
+                      "description": "Date when the event ends in local time"
+                    },
+                    "end_time": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "pattern": "^([01]\\d|2[0-3]):([0-5]\\d):([0-5]\\d)$",
+                      "description": "Time when the event ends in local time"
+                    },
+                    "min_price": {
+                      "type": [
+                        "number",
+                        "null"
+                      ],
+                      "description": "Min price from all the available tickets"
+                    },
+                    "max_price": {
+                      "type": [
+                        "number",
+                        "null"
+                      ],
+                      "description": "Max price from all the available tickets"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "title",
+                    "start_date",
+                    "start_time",
+                    "end_date",
+                    "end_time",
+                    "min_price",
+                    "max_price"
+                  ]
+                },
+                "description": "List of events matching search criteria"
+              },
+              "pagination": {
+                "type": "object",
+                "properties": {
+                  "page": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "description": "Current page number"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "description": "Items per page"
+                  },
+                  "total": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Total number of items"
+                  },
+                  "totalPages": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Total number of pages"
+                  },
+                  "hasNext": {
+                    "type": "boolean",
+                    "description": "Whether there is a next page"
+                  },
+                  "hasPrev": {
+                    "type": "boolean",
+                    "description": "Whether there is a previous page"
+                  }
+                },
+                "required": [
+                  "page",
+                  "limit",
+                  "total",
+                  "totalPages",
+                  "hasNext",
+                  "hasPrev"
+                ],
+                "description": "Pagination metadata"
+              }
+            },
+            "required": [
+              "events",
+              "pagination"
+            ]
+          },
+          "error": {
+            "type": "null",
+            "description": "Error object, null when successful"
+          }
+        },
+        "required": [
+          "data",
+          "error"
+        ],
+        "description": "Successful event search response",
+        "example": {
+          "data": {
+            "events": [
+              {
+                "id": "550e8400-e29b-41d4-a716-446655440000",
+                "title": "Concert in the Park",
+                "start_date": "2024-06-30",
+                "start_time": "22:38:19",
+                "end_date": "2024-06-30",
+                "end_time": "14:45:15",
+                "min_price": 20,
+                "max_price": 50
+              }
+            ]
+          },
+          "error": null
+        }
+      },
+      "SearchErrorResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "null",
+            "description": "Data object, null when error occurs"
+          },
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "description": "Error code"
+              },
+              "message": {
+                "type": "string",
+                "description": "Detail of the error"
+              }
+            },
+            "required": [
+              "code",
+              "message"
+            ]
+          }
+        },
+        "required": [
+          "data",
+          "error"
+        ],
+        "description": "Event search error response",
+        "example": {
+          "data": null,
+          "error": {
+            "code": "VALIDATION_ERROR",
+            "message": "Invalid date format provided"
+          }
+        }
+      }
+    },
+    "parameters": {}
+  },
+  "paths": {
+    "/search": {
+      "get": {
+        "summary": "Lists the available events on a time range",
+        "description": "Return events within the specified time range",
+        "tags": [
+          "Events"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "default": 1,
+              "description": "Page number"
+            },
+            "required": false,
+            "description": "Page number",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 100,
+              "default": 20,
+              "description": "Items per page"
+            },
+            "required": false,
+            "description": "Items per page",
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Return events starting after this date (ISO 8601)"
+            },
+            "required": false,
+            "description": "Return events starting after this date (ISO 8601)",
+            "name": "starts_at",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Return events ending before this date (ISO 8601)"
+            },
+            "required": false,
+            "description": "Return events ending before this date (ISO 8601)",
+            "name": "ends_at",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of events within the specified time range",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchSuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request was not correctly formed (missing required parameters, wrong types...)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Generic error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "webhooks": {}
+}

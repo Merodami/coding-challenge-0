@@ -1,0 +1,48 @@
+# Dependencies
+node_modules
+.yarn
+
+# Build outputs
+dist
+build
+coverage
+reports
+
+# Generated files
+*.generated.ts
+*.generated.js
+packages/api/generated/openapi/**
+
+# Lock files
+yarn.lock
+package-lock.json
+pnpm-lock.yaml
+
+# IDE
+.vscode
+.idea
+
+# NX
+.nx
+
+# Documentation
+docs/_build
+*.md
+
+# Environment
+.env*
+
+# Git
+.git
+.gitignore
+
+# Temporary
+tmp
+temp
+
+# Performance tests
+packages/tests/performance
+
+# Specific files
+CHANGELOG.md
+LICENSE

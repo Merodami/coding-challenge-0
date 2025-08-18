@@ -1,0 +1,11 @@
+{
+  "push": {
+    "ref": "refs/heads/task/add-ci-cd",
+    "repository": {
+      "name": "-Damian-Meroni",
+      "owner": {
+        "login": "FeverCodeChallenge"
+      }
+    }
+  }
+}

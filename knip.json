@@ -1,0 +1,40 @@
+{
+  "$schema": "https://unpkg.com/knip@latest/schema.json",
+  "workspaces": {
+    "packages/*": {
+      "entry": ["src/index.ts", "src/server.ts", "src/app.ts"],
+      "project": ["src/**/*.ts"]
+    },
+    "packages/services/*": {
+      "entry": ["src/index.ts", "src/server.ts", "src/app.ts"],
+      "project": ["src/**/*.ts"]
+    },
+    "tools/*": {
+      "entry": ["src/index.ts"],
+      "project": ["src/**/*.ts"]
+    }
+  },
+  "ignore": [
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "**/test/**",
+    "**/__tests__/**",
+    "**/__mocks__/**",
+    "**/scripts/**",
+    "**/*.config.ts",
+    "**/*.config.js"
+  ],
+  "ignoreDependencies": [
+    "@commitlint/cli",
+    "@commitlint/config-conventional",
+    "husky",
+    "lint-staged",
+    "prettier",
+    "eslint-config-prettier",
+    "dotenv-cli",
+    "concurrently",
+    "fkill-cli",
+    "tsx"
+  ],
+  "ignoreWorkspaces": ["packages/tests/performance"]
+}

@@ -1,0 +1,166 @@
+generator client {
+  provider        = "prisma-client-js"
+  output          = "../../../node_modules/.prisma/client"
+  binaryTargets   = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+}
+
+// Enums for the Event Service
+
+enum SellMode {
+  online
+  offline
+  both
+}
+
+enum SyncStatus {
+  pending
+  in_progress
+  completed
+  failed
+  skipped
+}
+
+enum EventStatus {
+  active
+  inactive
+  deleted
+}
+
+enum SyncTrigger {
+  scheduled
+  manual
+  webhook
+  startup
+}
+
+/// Base Plan model - represents an event in the provider's system
+model BasePlan {
+  id                  String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  basePlanId          String    @unique @map("base_plan_id") @db.VarChar(255)
+  title               String    @db.VarChar(500)
+  organizerCompanyId  String?   @map("organizer_company_id") @db.VarChar(255)
+  sellMode            SellMode  @default(online) @map("sell_mode")
+  
+  // Tracking fields
+  firstSeenAt         DateTime  @default(now()) @map("first_seen_at") @db.Timestamptz(6)
+  lastSeenAt          DateTime  @default(now()) @updatedAt @map("last_seen_at") @db.Timestamptz(6)
+  deletedAt           DateTime? @map("deleted_at") @db.Timestamptz(6)
+  
+  // Relations
+  plans               Plan[]
+  
+  // Indexes
+  @@index([sellMode])
+  @@index([lastSeenAt])
+  @@index([deletedAt])
+  @@index([title])
+  @@map("base_plans")
+}
+
+/// Plan model - represents a specific instance/session of an event
+model Plan {
+  id                  String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  basePlanId          String    @map("base_plan_id") @db.Uuid
+  planId              String    @map("plan_id") @db.VarChar(255)
+  
+  // Date/time fields from XML
+  planStartDate       DateTime  @map("plan_start_date") @db.Timestamptz(6)
+  planEndDate         DateTime  @map("plan_end_date") @db.Timestamptz(6)
+  sellFrom            DateTime? @map("sell_from") @db.Timestamptz(6)
+  sellTo              DateTime? @map("sell_to") @db.Timestamptz(6)
+  
+  // Status
+  soldOut             Boolean   @default(false) @map("sold_out")
+  
+  // Price range (computed from zones for performance)
+  minPrice            Decimal?  @map("min_price") @db.Decimal(10, 2)
+  maxPrice            Decimal?  @map("max_price") @db.Decimal(10, 2)
+  
+  // Raw data from provider
+  rawData             Json?     @map("raw_data") @db.JsonB
+  
+  // Tracking fields
+  firstSeenAt         DateTime  @default(now()) @map("first_seen_at") @db.Timestamptz(6)
+  lastSeenAt          DateTime  @default(now()) @updatedAt @map("last_seen_at") @db.Timestamptz(6)
+  deletedAt           DateTime? @map("deleted_at") @db.Timestamptz(6)
+  
+  // Relations
+  basePlan            BasePlan  @relation(fields: [basePlanId], references: [id], onDelete: Cascade)
+  zones               Zone[]
+  
+  // Indexes for date range queries (critical for performance)
+  @@index([planStartDate, planEndDate])
+  @@index([basePlanId])
+  @@index([deletedAt])
+  @@index([planStartDate])
+  @@index([planEndDate])
+  @@unique([basePlanId, planId]) // Composite unique key since planId can repeat
+  @@map("plans")
+}
+
+/// Zone model - pricing and capacity information
+model Zone {
+  id                  String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  planId              String    @map("plan_id") @db.Uuid
+  zoneId              String    @map("zone_id") @db.VarChar(255)
+  
+  // Zone details from XML
+  name                String?   @db.VarChar(255)
+  capacity            Int?
+  price               Decimal   @db.Decimal(10, 2)
+  numbered            Boolean   @default(false)
+  
+  // Tracking fields
+  firstSeenAt         DateTime  @default(now()) @map("first_seen_at") @db.Timestamptz(6)
+  lastSeenAt          DateTime  @default(now()) @updatedAt @map("last_seen_at") @db.Timestamptz(6)
+  
+  // Relations
+  plan                Plan      @relation(fields: [planId], references: [id], onDelete: Cascade)
+  
+  // Indexes
+  @@index([planId])
+  // Note: zone_id can repeat within a plan, so not unique
+  @@map("zones")
+}
+
+/// Sync history for tracking provider synchronization
+model SyncHistory {
+  id                  String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  
+  // Sync details
+  status              SyncStatus  @default(pending)
+  trigger             SyncTrigger @default(scheduled)
+  startedAt           DateTime    @default(now()) @map("started_at") @db.Timestamptz(6)
+  completedAt         DateTime?   @map("completed_at") @db.Timestamptz(6)
+  
+  // Statistics
+  eventsFound         Int?        @map("events_found")
+  eventsCreated       Int?        @map("events_created")
+  eventsUpdated       Int?        @map("events_updated")
+  eventsDeleted       Int?        @map("events_deleted")
+  
+  // Performance metrics
+  responseTimeMs      Int?        @map("response_time_ms")
+  processingTimeMs    Int?        @map("processing_time_ms")
+  
+  // Error tracking
+  error               String?     @db.Text
+  errorDetails        Json?       @map("error_details") @db.JsonB
+  
+  // Provider response
+  rawResponse         Json?       @map("raw_response") @db.JsonB
+  
+  // Audit
+  createdAt           DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  
+  // Indexes
+  @@index([status])
+  @@index([startedAt])
+  @@index([trigger])
+  @@map("sync_history")
+}

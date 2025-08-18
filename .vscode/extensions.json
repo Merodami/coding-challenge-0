@@ -1,0 +1,19 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "ms-vscode.vscode-typescript-next",
+    "christian-kohler.path-intellisense",
+    "mikestead.dotenv",
+    "prisma.prisma",
+    "yoavbls.pretty-ts-errors",
+    "streetsidesoftware.code-spell-checker",
+    "usernamehw.errorlens",
+    "eamodio.gitlens",
+    "donjayamanne.githistory",
+    "github.vscode-pull-request-github",
+    "vitest.explorer",
+    "zixuanchen.vitest-explorer",
+    "editorconfig.editorconfig"
+  ]
+}

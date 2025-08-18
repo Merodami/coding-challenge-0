@@ -1,0 +1,28 @@
+// Enums for the Event Service
+
+enum SellMode {
+  online
+  offline
+  both
+}
+
+enum SyncStatus {
+  pending
+  in_progress
+  completed
+  failed
+  skipped
+}
+
+enum EventStatus {
+  active
+  inactive
+  deleted
+}
+
+enum SyncTrigger {
+  scheduled
+  manual
+  webhook
+  startup
+}

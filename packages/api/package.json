@@ -1,0 +1,66 @@
+{
+  "name": "@fever/api",
+  "version": "0.0.0",
+  "description": "API schemas and validation for Fever Event Service",
+  "author": "Fever Events Team",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./schemas": {
+      "types": "./dist/schemas/index.d.ts",
+      "import": "./dist/schemas/index.js"
+    },
+    "./common": {
+      "types": "./dist/common/index.d.ts",
+      "import": "./dist/common/index.js"
+    },
+    "./public": {
+      "types": "./dist/public.d.ts",
+      "import": "./dist/public.js"
+    },
+    "./admin": {
+      "types": "./dist/admin.d.ts",
+      "import": "./dist/admin.js"
+    },
+    "./internal": {
+      "types": "./dist/internal.d.ts",
+      "import": "./dist/internal.js"
+    }
+  },
+  "files": [
+    "dist",
+    "!dist/**/*.test.*"
+  ],
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
+    "access": "restricted"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FeverCodeChallenge/-Damian-Meroni.git"
+  },
+  "homepage": "https://github.com/FeverCodeChallenge/-Damian-Meroni#readme",
+  "bugs": {
+    "url": "https://github.com/FeverCodeChallenge/-Damian-Meroni/issues"
+  },
+  "dependencies": {
+    "@asteasolutions/zod-to-openapi": "^8.1.0",
+    "@fever/types": "workspace:^",
+    "dotenv": "^17.2.1",
+    "lodash-es": "^4.17.21",
+    "openapi3-ts": "^4.5.0",
+    "zod": "^4.0.17"
+  },
+  "devDependencies": {
+    "@types/lodash-es": "^4.17.12",
+    "tsc-alias": "^1.8.16",
+    "tsx": "^4.20.4",
+    "typescript": "^5.9.2"
+  }
+}
