@@ -151,6 +151,7 @@ export class InternalService implements IInternalService {
       return lastSync
     } catch (error) {
       logger.error('Failed to get last sync info from cache:', error)
+
       // Return null for cache failures - this is non-critical data
       return null
     }

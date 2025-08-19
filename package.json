@@ -26,7 +26,7 @@
     "docker:restart": "yarn docker:local:down && yarn docker:local",
     "test": "yarn kill:processes && yarn vitest",
     "test:coverage": "yarn kill:processes && yarn vitest --run --coverage",
-    "test:integration": "yarn vitest \"**/*.integration.test.ts\"",
+    "test:integration": "yarn vitest run packages/**/*.integration.test.ts packages/**/*.testcontainer.test.ts",
     "test:all": "yarn test",
     "build": "nx run-many --target=build --all --parallel=100 --output-style=stream --skip-nx-cache",
     "build:vercel": "yarn build",

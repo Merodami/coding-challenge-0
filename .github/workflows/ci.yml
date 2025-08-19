@@ -124,6 +124,10 @@ jobs:
         if: steps.check-package.outputs.exists == 'true'
         run: yarn install --immutable
 
+      - name: Generate Prisma Client
+        if: steps.check-package.outputs.exists == 'true'
+        run: yarn db:generate
+
       - name: Run TypeScript type checking
         if: steps.check-package.outputs.exists == 'true'
         run: yarn typecheck
@@ -338,6 +342,10 @@ jobs:
       - name: Install dependencies
         if: steps.check-package.outputs.exists == 'true'
         run: yarn install --immutable
+
+      - name: Generate Prisma Client
+        if: steps.check-package.outputs.exists == 'true'
+        run: yarn db:generate
 
       - name: Download build artifacts
         if: steps.check-package.outputs.exists == 'true'
