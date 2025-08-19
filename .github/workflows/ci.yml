@@ -37,23 +37,23 @@ jobs:
             echo "exists=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Enable Corepack for Yarn
+        if: steps.check-package.outputs.exists == 'true'
+        run: corepack enable
+
       - name: Get yarn cache directory path
         if: steps.check-package.outputs.exists == 'true'
         id: yarn-cache-dir-path
         run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
 
       - name: Cache yarn dependencies
-        if: steps.check-package.outputs.exists == 'true'
+        if: steps.check-package.outputs.exists == 'true' && steps.yarn-cache-dir-path.outputs.dir != ''
         uses: actions/cache@v4
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
-
-      - name: Enable Corepack for Yarn
-        if: steps.check-package.outputs.exists == 'true'
-        run: corepack enable
 
       - name: Install dependencies
         if: steps.check-package.outputs.exists == 'true'
@@ -102,23 +102,23 @@ jobs:
             echo "exists=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Enable Corepack for Yarn
+        if: steps.check-package.outputs.exists == 'true'
+        run: corepack enable
+
       - name: Get yarn cache directory path
         if: steps.check-package.outputs.exists == 'true'
         id: yarn-cache-dir-path
         run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
 
       - name: Cache yarn dependencies
-        if: steps.check-package.outputs.exists == 'true'
+        if: steps.check-package.outputs.exists == 'true' && steps.yarn-cache-dir-path.outputs.dir != ''
         uses: actions/cache@v4
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
-
-      - name: Enable Corepack for Yarn
-        if: steps.check-package.outputs.exists == 'true'
-        run: corepack enable
 
       - name: Install dependencies
         if: steps.check-package.outputs.exists == 'true'
@@ -156,23 +156,23 @@ jobs:
             echo "exists=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Enable Corepack for Yarn
+        if: steps.check-package.outputs.exists == 'true'
+        run: corepack enable
+
       - name: Get yarn cache directory path
         if: steps.check-package.outputs.exists == 'true'
         id: yarn-cache-dir-path
         run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
 
       - name: Cache yarn dependencies
-        if: steps.check-package.outputs.exists == 'true'
+        if: steps.check-package.outputs.exists == 'true' && steps.yarn-cache-dir-path.outputs.dir != ''
         uses: actions/cache@v4
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
-
-      - name: Enable Corepack for Yarn
-        if: steps.check-package.outputs.exists == 'true'
-        run: corepack enable
 
       - name: Install dependencies
         if: steps.check-package.outputs.exists == 'true'
@@ -240,23 +240,23 @@ jobs:
             echo "exists=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Enable Corepack for Yarn
+        if: steps.check-package.outputs.exists == 'true'
+        run: corepack enable
+
       - name: Get yarn cache directory path
         if: steps.check-package.outputs.exists == 'true'
         id: yarn-cache-dir-path
         run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
 
       - name: Cache yarn dependencies
-        if: steps.check-package.outputs.exists == 'true'
+        if: steps.check-package.outputs.exists == 'true' && steps.yarn-cache-dir-path.outputs.dir != ''
         uses: actions/cache@v4
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
-
-      - name: Enable Corepack for Yarn
-        if: steps.check-package.outputs.exists == 'true'
-        run: corepack enable
 
       - name: Install dependencies
         if: steps.check-package.outputs.exists == 'true'
@@ -313,23 +313,23 @@ jobs:
             echo "exists=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Enable Corepack for Yarn
+        if: steps.check-package.outputs.exists == 'true'
+        run: corepack enable
+
       - name: Get yarn cache directory path
         if: steps.check-package.outputs.exists == 'true'
         id: yarn-cache-dir-path
         run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
 
       - name: Cache yarn dependencies
-        if: steps.check-package.outputs.exists == 'true'
+        if: steps.check-package.outputs.exists == 'true' && steps.yarn-cache-dir-path.outputs.dir != ''
         uses: actions/cache@v4
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
-
-      - name: Enable Corepack for Yarn
-        if: steps.check-package.outputs.exists == 'true'
-        run: corepack enable
 
       - name: Install dependencies
         if: steps.check-package.outputs.exists == 'true'
@@ -370,23 +370,23 @@ jobs:
             echo "exists=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Enable Corepack for Yarn
+        if: steps.check-package.outputs.exists == 'true'
+        run: corepack enable
+
       - name: Get yarn cache directory path
         if: steps.check-package.outputs.exists == 'true'
         id: yarn-cache-dir-path
         run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
 
       - name: Cache yarn dependencies
-        if: steps.check-package.outputs.exists == 'true'
+        if: steps.check-package.outputs.exists == 'true' && steps.yarn-cache-dir-path.outputs.dir != ''
         uses: actions/cache@v4
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
-
-      - name: Enable Corepack for Yarn
-        if: steps.check-package.outputs.exists == 'true'
-        run: corepack enable
 
       - name: Install dependencies
         if: steps.check-package.outputs.exists == 'true'
