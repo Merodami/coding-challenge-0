@@ -28,11 +28,22 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      - name: Check if package.json exists
+        id: check-package
+        run: |
+          if [ -f "package.json" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Get yarn cache directory path
+        if: steps.check-package.outputs.exists == 'true'
         id: yarn-cache-dir-path
         run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
 
       - name: Cache yarn dependencies
+        if: steps.check-package.outputs.exists == 'true'
         uses: actions/cache@v4
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -41,24 +52,28 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Enable Corepack for Yarn
+        if: steps.check-package.outputs.exists == 'true'
         run: corepack enable
 
       - name: Install dependencies
+        if: steps.check-package.outputs.exists == 'true'
         run: yarn install --immutable
 
       - name: Check formatting
+        if: steps.check-package.outputs.exists == 'true'
         run: yarn format:check
 
       - name: Run ESLint
+        if: steps.check-package.outputs.exists == 'true'
         run: yarn lint
 
       - name: Generate lint report
-        if: always()
+        if: always() && steps.check-package.outputs.exists == 'true'
         run: yarn lint:report || true
         continue-on-error: true
 
       - name: Upload lint report
-        if: always()
+        if: always() && steps.check-package.outputs.exists == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: eslint-report
@@ -78,11 +93,22 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      - name: Check if package.json exists
+        id: check-package
+        run: |
+          if [ -f "package.json" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Get yarn cache directory path
+        if: steps.check-package.outputs.exists == 'true'
         id: yarn-cache-dir-path
         run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
 
       - name: Cache yarn dependencies
+        if: steps.check-package.outputs.exists == 'true'
         uses: actions/cache@v4
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -91,15 +117,19 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Enable Corepack for Yarn
+        if: steps.check-package.outputs.exists == 'true'
         run: corepack enable
 
       - name: Install dependencies
+        if: steps.check-package.outputs.exists == 'true'
         run: yarn install --immutable
 
       - name: Run TypeScript type checking
+        if: steps.check-package.outputs.exists == 'true'
         run: yarn typecheck
 
       - name: Type coverage report
+        if: steps.check-package.outputs.exists == 'true'
         run: yarn quality:type-coverage
         continue-on-error: true
 
@@ -117,11 +147,22 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      - name: Check if package.json exists
+        id: check-package
+        run: |
+          if [ -f "package.json" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Get yarn cache directory path
+        if: steps.check-package.outputs.exists == 'true'
         id: yarn-cache-dir-path
         run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
 
       - name: Cache yarn dependencies
+        if: steps.check-package.outputs.exists == 'true'
         uses: actions/cache@v4
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -130,15 +171,19 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Enable Corepack for Yarn
+        if: steps.check-package.outputs.exists == 'true'
         run: corepack enable
 
       - name: Install dependencies
+        if: steps.check-package.outputs.exists == 'true'
         run: yarn install --immutable
 
       - name: Build all packages
+        if: steps.check-package.outputs.exists == 'true'
         run: yarn build
 
       - name: Upload build artifacts
+        if: steps.check-package.outputs.exists == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: build-artifacts
@@ -186,11 +231,22 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      - name: Check if package.json exists
+        id: check-package
+        run: |
+          if [ -f "package.json" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Get yarn cache directory path
+        if: steps.check-package.outputs.exists == 'true'
         id: yarn-cache-dir-path
         run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
 
       - name: Cache yarn dependencies
+        if: steps.check-package.outputs.exists == 'true'
         uses: actions/cache@v4
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -199,20 +255,25 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Enable Corepack for Yarn
+        if: steps.check-package.outputs.exists == 'true'
         run: corepack enable
 
       - name: Install dependencies
+        if: steps.check-package.outputs.exists == 'true'
         run: yarn install --immutable
 
       - name: Setup database
+        if: steps.check-package.outputs.exists == 'true'
         run: |
           yarn db:generate
           yarn db:migrate:deploy
 
       - name: Run unit tests
+        if: steps.check-package.outputs.exists == 'true'
         run: yarn test:coverage
 
       - name: Upload coverage reports
+        if: steps.check-package.outputs.exists == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
@@ -220,6 +281,7 @@ jobs:
           retention-days: 7
 
       - name: Upload coverage to Codecov
+        if: steps.check-package.outputs.exists == 'true'
         uses: codecov/codecov-action@v4
         with:
           files: ./coverage/coverage-final.json
@@ -242,11 +304,22 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      - name: Check if package.json exists
+        id: check-package
+        run: |
+          if [ -f "package.json" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Get yarn cache directory path
+        if: steps.check-package.outputs.exists == 'true'
         id: yarn-cache-dir-path
         run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
 
       - name: Cache yarn dependencies
+        if: steps.check-package.outputs.exists == 'true'
         uses: actions/cache@v4
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -255,18 +328,22 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Enable Corepack for Yarn
+        if: steps.check-package.outputs.exists == 'true'
         run: corepack enable
 
       - name: Install dependencies
+        if: steps.check-package.outputs.exists == 'true'
         run: yarn install --immutable
 
       - name: Download build artifacts
+        if: steps.check-package.outputs.exists == 'true'
         uses: actions/download-artifact@v4
         with:
           name: build-artifacts
           path: packages/
 
       - name: Run integration tests
+        if: steps.check-package.outputs.exists == 'true'
         run: yarn test:integration
         timeout-minutes: 15
 
@@ -284,11 +361,22 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      - name: Check if package.json exists
+        id: check-package
+        run: |
+          if [ -f "package.json" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Get yarn cache directory path
+        if: steps.check-package.outputs.exists == 'true'
         id: yarn-cache-dir-path
         run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
 
       - name: Cache yarn dependencies
+        if: steps.check-package.outputs.exists == 'true'
         uses: actions/cache@v4
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -297,25 +385,30 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Enable Corepack for Yarn
+        if: steps.check-package.outputs.exists == 'true'
         run: corepack enable
 
       - name: Install dependencies
+        if: steps.check-package.outputs.exists == 'true'
         run: yarn install --immutable
 
       - name: Check for circular dependencies
+        if: steps.check-package.outputs.exists == 'true'
         run: yarn quality:circular
         continue-on-error: true
 
       - name: Check for code duplicates
+        if: steps.check-package.outputs.exists == 'true'
         run: yarn quality:duplicates
         continue-on-error: true
 
       - name: Check for unused exports
+        if: steps.check-package.outputs.exists == 'true'
         run: yarn quality:unused
         continue-on-error: true
 
       - name: Upload quality reports
-        if: always()
+        if: always() && steps.check-package.outputs.exists == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: quality-reports
