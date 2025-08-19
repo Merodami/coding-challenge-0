@@ -178,6 +178,10 @@ jobs:
         if: steps.check-package.outputs.exists == 'true'
         run: yarn install --immutable
 
+      - name: Generate Prisma Client
+        if: steps.check-package.outputs.exists == 'true'
+        run: yarn db:generate
+
       - name: Build all packages
         if: steps.check-package.outputs.exists == 'true'
         run: yarn build
