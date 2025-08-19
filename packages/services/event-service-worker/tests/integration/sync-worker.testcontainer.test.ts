@@ -370,6 +370,7 @@ describe('Sync Worker Integration Tests with Testcontainers', () => {
       // If completed, check the return value
       if (state === 'completed') {
         const returnValue = job?.returnvalue
+
         expect(returnValue).toBeDefined()
         expect(returnValue.success).toBe(true) // Still successful due to resilience
         expect(returnValue.eventsProcessed).toBe(0)
@@ -587,6 +588,7 @@ describe('Sync Worker Integration Tests with Testcontainers', () => {
       // Store result only if job completed
       if (state === 'completed') {
         const result = job?.returnvalue
+
         if (result) {
           await queueService.storeSyncResult(result)
         }

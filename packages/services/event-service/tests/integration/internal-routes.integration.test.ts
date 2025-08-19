@@ -18,6 +18,7 @@ import { createEventServiceApp } from '../../src/app.js'
 describe.skip('Internal Routes Integration Tests', () => {
   let app: Express
   let testDb: TestDatabaseResult
+
   const SERVICE_API_KEY = 'test-service-key-123'
 
   beforeAll(async () => {
@@ -277,6 +278,7 @@ describe.skip('Internal Routes Integration Tests', () => {
       it('should include lastSync when available', async () => {
         // Mock storing a sync result
         const cacheService = await initializeCache()
+
         await cacheService.set(
           'event-service:last-sync',
           {
@@ -305,6 +307,7 @@ describe.skip('Internal Routes Integration Tests', () => {
       it('should handle missing lastSync gracefully', async () => {
         // Clear any existing lastSync
         const cacheService = await initializeCache()
+
         await cacheService.delete('event-service:last-sync')
 
         const response = await request(app)

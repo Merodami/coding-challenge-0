@@ -14,15 +14,15 @@ export {
   requireApiKey,
   validateApiKey,
 } from './infrastructure/express/middleware/apiKeyAuth.js'
-export {
-  requireServiceApiKey,
-  validateServiceApiKey,
-} from './infrastructure/express/middleware/serviceAuth.js'
 export { errorMiddleware } from './infrastructure/express/middleware/errorHandler.js'
 export {
   idempotencyMiddleware,
   idempotencyPlugin,
 } from './infrastructure/express/middleware/idempotency.js'
+export {
+  requireServiceApiKey,
+  validateServiceApiKey,
+} from './infrastructure/express/middleware/serviceAuth.js'
 export {
   validateBody,
   validateParams,
