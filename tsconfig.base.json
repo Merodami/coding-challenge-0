@@ -1,0 +1,71 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "lib": ["ES2022"],
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "useUnknownInCatchVariables": false,
+    "isolatedModules": true,
+    "newLine": "lf",
+    "declaration": true,
+    "declarationMap": true,
+    "incremental": true,
+    "sourceMap": true,
+    "noEmit": false,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "outDir": "./dist",
+    "rootDir": ".",
+    "composite": false,
+    "tsBuildInfoFile": ".tsbuildinfo",
+    "paths": {
+      "@fever/api": ["packages/api/src/index.ts"],
+      "@fever/api/*": ["packages/api/src/*"],
+      "@fever/api-gateway": ["packages/api-gateway/src/index.ts"],
+      "@fever/api-gateway/*": ["packages/api-gateway/src/*"],
+      "@fever/database": ["packages/database/src/index.ts"],
+      "@fever/database/*": ["packages/database/src/*"],
+      "@fever/environment": ["packages/environment/src/index.ts"],
+      "@fever/environment/*": ["packages/environment/src/*"],
+      "@fever/http": ["packages/http/src/index.ts"],
+      "@fever/http/*": ["packages/http/src/*"],
+      "@fever/redis": ["packages/redis/src/index.ts"],
+      "@fever/redis/*": ["packages/redis/src/*"],
+      "@fever/sdk": ["packages/sdk/src/index.ts"],
+      "@fever/sdk/*": ["packages/sdk/src/*"],
+      "@fever/shared": ["packages/shared/src/index.ts"],
+      "@fever/shared/*": ["packages/shared/src/*"],
+      "@fever/tests": ["packages/tests/src/index.ts"],
+      "@fever/tests/*": ["packages/tests/src/*"],
+      "@fever/types": ["packages/types/src/index.ts"],
+      "@fever/types/*": ["packages/types/src/*"],
+      "@fever/event-service": ["packages/services/event-service/src/index.ts"],
+      "@fever/event-service/*": ["packages/services/event-service/src/*"],
+      "@fever/event-service-worker": [
+        "packages/services/event-service-worker/src/index.ts"
+      ],
+      "@fever/event-service-worker/*": [
+        "packages/services/event-service-worker/src/*"
+      ]
+    }
+  },
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    "coverage",
+    "**/*.spec.ts",
+    "**/*.test.ts",
+    "**/test/**",
+    "**/__tests__/**",
+    "**/__mocks__/**",
+    ".nx",
+    "tmp"
+  ]
+}

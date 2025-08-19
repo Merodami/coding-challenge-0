@@ -1,0 +1,36 @@
+/// Sync history for tracking provider synchronization
+model SyncHistory {
+  id                  String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  
+  // Sync details
+  status              SyncStatus  @default(pending)
+  trigger             SyncTrigger @default(scheduled)
+  startedAt           DateTime    @default(now()) @map("started_at") @db.Timestamptz(6)
+  completedAt         DateTime?   @map("completed_at") @db.Timestamptz(6)
+  
+  // Statistics
+  eventsFound         Int?        @map("events_found")
+  eventsCreated       Int?        @map("events_created")
+  eventsUpdated       Int?        @map("events_updated")
+  eventsDeleted       Int?        @map("events_deleted")
+  
+  // Performance metrics
+  responseTimeMs      Int?        @map("response_time_ms")
+  processingTimeMs    Int?        @map("processing_time_ms")
+  
+  // Error tracking
+  error               String?     @db.Text
+  errorDetails        Json?       @map("error_details") @db.JsonB
+  
+  // Provider response
+  rawResponse         Json?       @map("raw_response") @db.JsonB
+  
+  // Audit
+  createdAt           DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  
+  // Indexes
+  @@index([status])
+  @@index([startedAt])
+  @@index([trigger])
+  @@map("sync_history")
+}

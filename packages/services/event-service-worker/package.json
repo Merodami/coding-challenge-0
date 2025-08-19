@@ -1,0 +1,49 @@
+{
+  "name": "@fever/event-service-worker",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Event synchronization worker for Fever Event Platform",
+  "author": "Fever",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "dependencies": {
+    "@fever/environment": "workspace:^",
+    "@fever/redis": "workspace:^",
+    "@fever/shared": "workspace:^",
+    "@fever/types": "workspace:^",
+    "@prisma/client": "^6.14.0",
+    "axios": "^1.11.0",
+    "axios-retry": "^4.5.0",
+    "bullmq": "^5.58.0",
+    "fast-xml-parser": "^5.2.5",
+    "lodash-es": "^4.17.21"
+  },
+  "devDependencies": {
+    "@fever/tests": "workspace:^",
+    "@types/lodash-es": "^4.17.12",
+    "@types/node": "^24.3.0",
+    "tsx": "^4.20.4",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx watch src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "prettier --check . && eslint .",
+    "lint:fix": "prettier --write . && eslint . --fix",
+    "test": "vitest run",
+    "test:watch": "vitest watch",
+    "test:unit": "vitest run tests/unit/",
+    "test:integration": "vitest run tests/integration/"
+  }
+}

@@ -1,0 +1,373 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Fever Event Service Internal API",
+    "version": "1.0.0",
+    "description": "Internal API for service-to-service communication and background job management. These endpoints are NOT exposed through the API Gateway and must be accessed directly on the Event Service port.\n\n## Authentication\n\nInternal endpoints require a service API key. Include the key in the `x-service-api-key` header.\n\n**Default Service API Key for PoC Testing:** `fever-internal-service-key-2025`\n\n```bash\ncurl -H \"x-service-api-key: fever-internal-service-key-2025\" http://localhost:5501/internal/sync/status\n```"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5501",
+      "description": "Local Development (Event Service Direct)"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "serviceApiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-service-api-key",
+        "description": "Service API key for internal endpoints. Default for PoC: `fever-internal-service-key-2025`"
+      }
+    },
+    "schemas": {
+      "InternalTriggerSyncRequest": {
+        "type": "object",
+        "properties": {
+          "force": {
+            "type": "boolean",
+            "description": "Force sync even if a job is already in queue"
+          },
+          "priority": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10,
+            "default": 0,
+            "description": "Job priority (0-10, higher is more important)"
+          },
+          "delay": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Delay in milliseconds before processing the job"
+          }
+        },
+        "description": "Request to trigger an event sync job",
+        "example": {
+          "force": false,
+          "priority": 5,
+          "delay": 1000
+        }
+      },
+      "InternalTriggerSyncResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "jobId": {
+            "type": "string",
+            "description": "Queue job ID or \"skipped\" if job already exists"
+          },
+          "message": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "success",
+          "jobId",
+          "message"
+        ],
+        "description": "Response after triggering a sync job",
+        "example": {
+          "success": true,
+          "jobId": "123e4567-e89b-12d3-a456-426614174000",
+          "message": "Sync job scheduled",
+          "timestamp": "2024-01-01T00:00:00Z"
+        }
+      },
+      "QueueStats": {
+        "type": "object",
+        "properties": {
+          "waiting": {
+            "type": "integer",
+            "description": "Number of jobs waiting to be processed"
+          },
+          "active": {
+            "type": "integer",
+            "description": "Number of jobs currently being processed"
+          },
+          "completed": {
+            "type": "integer",
+            "description": "Total number of completed jobs"
+          },
+          "failed": {
+            "type": "integer",
+            "description": "Total number of failed jobs"
+          },
+          "delayed": {
+            "type": "integer",
+            "description": "Number of delayed jobs"
+          },
+          "total": {
+            "type": "integer",
+            "description": "Total jobs in queue (waiting + active + delayed)"
+          }
+        },
+        "required": [
+          "waiting",
+          "active",
+          "completed",
+          "failed",
+          "delayed",
+          "total"
+        ],
+        "description": "Queue statistics",
+        "example": {
+          "waiting": 2,
+          "active": 1,
+          "completed": 150,
+          "failed": 3,
+          "delayed": 0,
+          "total": 3
+        }
+      },
+      "InternalSyncStatusResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "queue": {
+            "type": "object",
+            "properties": {
+              "waiting": {
+                "type": "integer",
+                "description": "Number of jobs waiting to be processed"
+              },
+              "active": {
+                "type": "integer",
+                "description": "Number of jobs currently being processed"
+              },
+              "completed": {
+                "type": "integer",
+                "description": "Total number of completed jobs"
+              },
+              "failed": {
+                "type": "integer",
+                "description": "Total number of failed jobs"
+              },
+              "delayed": {
+                "type": "integer",
+                "description": "Number of delayed jobs"
+              },
+              "total": {
+                "type": "integer",
+                "description": "Total jobs in queue (waiting + active + delayed)"
+              }
+            },
+            "required": [
+              "waiting",
+              "active",
+              "completed",
+              "failed",
+              "delayed",
+              "total"
+            ]
+          },
+          "lastSync": {
+            "type": "object",
+            "properties": {
+              "timestamp": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "eventsProcessed": {
+                "type": "integer"
+              },
+              "duration": {
+                "type": "integer",
+                "description": "Duration in milliseconds"
+              },
+              "success": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "timestamp",
+              "eventsProcessed",
+              "duration",
+              "success"
+            ],
+            "description": "Information about the last sync job"
+          }
+        },
+        "required": [
+          "success",
+          "queue"
+        ],
+        "description": "Current sync queue status and statistics",
+        "example": {
+          "success": true,
+          "queue": {
+            "waiting": 0,
+            "active": 0,
+            "completed": 10,
+            "failed": 0,
+            "delayed": 0,
+            "total": 0
+          },
+          "lastSync": {
+            "timestamp": "2024-01-01T00:00:00Z",
+            "eventsProcessed": 25,
+            "duration": 1500,
+            "success": true
+          }
+        }
+      },
+      "SyncJobResult": {
+        "type": "object",
+        "properties": {
+          "eventsProcessed": {
+            "type": "integer"
+          },
+          "success": {
+            "type": "boolean"
+          },
+          "errorMessage": {
+            "type": "string"
+          },
+          "duration": {
+            "type": "integer",
+            "description": "Sync duration in milliseconds"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "eventsProcessed",
+          "success",
+          "duration",
+          "timestamp"
+        ],
+        "description": "Result of a sync job execution",
+        "example": {
+          "eventsProcessed": 50,
+          "success": true,
+          "duration": 2000,
+          "timestamp": "2024-01-01T00:00:00Z"
+        }
+      }
+    },
+    "parameters": {}
+  },
+  "paths": {
+    "/internal/sync": {
+      "post": {
+        "summary": "Trigger event synchronization",
+        "description": "Triggers a background job to synchronize events from the external provider",
+        "tags": [
+          "Internal"
+        ],
+        "security": [
+          {
+            "serviceApiKey": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InternalTriggerSyncRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sync job successfully triggered",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalTriggerSyncResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalTriggerSyncResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing service API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalTriggerSyncResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalTriggerSyncResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/sync/status": {
+      "get": {
+        "summary": "Get synchronization status",
+        "description": "Returns the current status of the sync queue and information about the last sync",
+        "tags": [
+          "Internal"
+        ],
+        "security": [
+          {
+            "serviceApiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current sync status and queue statistics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalSyncStatusResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing service API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalSyncStatusResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalSyncStatusResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "webhooks": {}
+}

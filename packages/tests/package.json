@@ -1,0 +1,24 @@
+{
+  "name": "@fever/tests",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Shared testing utilities and fixtures for Fever Event Service",
+  "author": "Fever",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "devDependencies": {
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "@fever/database": "workspace:^",
+    "@fever/environment": "workspace:^",
+    "@fever/redis": "workspace:^",
+    "@fever/shared": "workspace:^",
+    "@fever/types": "workspace:^",
+    "@types/supertest": "^6.0.3",
+    "supertest": "^7.1.4",
+    "testcontainers": "^11.5.1",
+    "vitest": "^3.2.4"
+  }
+}

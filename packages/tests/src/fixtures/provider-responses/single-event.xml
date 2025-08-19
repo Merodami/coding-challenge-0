@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<planList xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.0" xsi:noNamespaceSchemaLocation="planList.xsd">
+   <output>
+      <base_plan base_plan_id="291" sell_mode="online" title="Single Test Event">
+         <plan plan_start_date="2021-06-30T21:00:00" plan_end_date="2021-06-30T22:00:00" plan_id="291" sell_from="2020-07-01T00:00:00" sell_to="2021-06-30T20:00:00" sold_out="false">
+            <zone zone_id="40" capacity="243" price="20.00" name="Platea" numbered="true" />
+         </plan>
+      </base_plan>
+   </output>
+</planList>

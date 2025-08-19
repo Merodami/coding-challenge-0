@@ -1,0 +1,28 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "composite": true,
+    "tsBuildInfoFile": "dist/.tsbuildinfo",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": ".",
+    "paths": {
+      "@redis/api/*": ["src/api/*"],
+      "@redis/application/*": ["src/application/*"],
+      "@redis/domain/*": ["src/domain/*"],
+      "@redis/infrastructure/*": ["src/infrastructure/*"]
+    }
+  },
+  "include": ["src"],
+  "exclude": ["dist", "../../node_modules", "node_modules"],
+  "references": [
+    {
+      "path": "../environment"
+    },
+    {
+      "path": "../types"
+    }
+  ]
+}

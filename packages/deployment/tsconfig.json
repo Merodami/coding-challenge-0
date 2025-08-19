@@ -1,0 +1,30 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "composite": true,
+    "tsBuildInfoFile": "dist/.tsbuildinfo",
+    "baseUrl": ".",
+    "paths": {
+      "@fever/deployment/*": ["src/*"],
+      "@fever/deployment": ["src/index.ts"]
+    }
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["dist", "../../node_modules", "node_modules"],
+  "references": [
+    {
+      "path": "../types"
+    },
+    {
+      "path": "../environment"
+    },
+    {
+      "path": "../shared"
+    },
+    {
+      "path": "../redis"
+    }
+  ]
+}

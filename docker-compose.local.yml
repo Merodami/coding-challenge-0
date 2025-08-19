@@ -1,0 +1,61 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: fever_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: fever
+      POSTGRES_PASSWORD: fever
+      POSTGRES_DB: fever_events
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - '5435:5432'
+    volumes:
+      - ./.local/data/postgres:/var/lib/postgresql/data
+      - ./packages/database/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U fever -d fever_events']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - fever-network
+
+  redis:
+    image: redis:8-alpine
+    container_name: fever_redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    ports:
+      - '6380:6379'
+    volumes:
+      - ./.local/data/redis:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - fever-network
+
+  # Optional: Redis Commander for Redis GUI
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: fever_redis_commander
+    restart: unless-stopped
+    environment:
+      REDIS_HOSTS: local:redis:6379
+    ports:
+      - '8081:8081'
+    depends_on:
+      - redis
+    networks:
+      - fever-network
+
+networks:
+  fever-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:

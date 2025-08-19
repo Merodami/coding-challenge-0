@@ -1,0 +1,33 @@
+{
+  "name": "@fever/api-gateway",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "dist/api/server.js",
+  "types": "dist/api/server.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/api/server.js",
+      "types": "./dist/api/server.d.ts"
+    },
+    "./server": {
+      "import": "./dist/api/server.js",
+      "types": "./dist/api/server.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "rm -rf dist && tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@fever/environment": "workspace:^",
+    "@fever/http": "workspace:^",
+    "@fever/redis": "workspace:^",
+    "@fever/shared": "workspace:^",
+    "express": "^5.1.0",
+    "http-proxy-middleware": "^3.0.5"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "tsc-alias": "^1.8.16",
+    "typescript": "^5.9.2"
+  }
+}

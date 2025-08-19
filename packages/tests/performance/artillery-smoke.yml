@@ -1,0 +1,64 @@
+# Artillery Smoke Test Configuration
+#
+# Aggressive smoke test pushing 30 req/sec (1800 req/min) to stress test the service
+
+config:
+  target: 'http://localhost:5500'
+  phases:
+    # Aggressive smoke test - 30 seconds, high load (30 req/sec = 1800 req/min)
+    - duration: 30
+      arrivalRate: 30
+      name: 'Smoke Test'
+
+  # Default headers
+  defaults:
+    headers:
+      x-api-key: 'fever-poc-api-key-2025'
+
+  # Processor for custom logic
+  processor: './artillery-processor.cjs'
+
+# Simple scenarios for smoke testing
+scenarios:
+  # Scenario 1: Health Check (40% of traffic)
+  - weight: 40
+    name: 'Health Check'
+    flow:
+      - get:
+          url: '/health'
+          expect:
+            - statusCode: 200
+            - responseTime:
+                - under: 100
+
+  # Scenario 2: Search Events (40% of traffic)
+  - weight: 40
+    name: 'Search Events'
+    flow:
+      - get:
+          url: '/api/v1/search?starts_at=2021-01-01T00:00:00Z&ends_at=2021-12-31T23:59:59Z'
+          expect:
+            - statusCode: 200
+            - contentType: application/json
+            - hasProperty: data
+            - responseTime:
+                - under: 300
+
+  # Scenario 3: Additional Search (20% of traffic)
+  - weight: 20
+    name: 'Search Recent Events'
+    flow:
+      - get:
+          url: '/api/v1/search?starts_at=2021-06-01T00:00:00Z&ends_at=2021-06-30T23:59:59Z'
+          expect:
+            - statusCode: 200
+            - hasProperty: data
+            - responseTime:
+                - under: 300
+
+# Performance expectations for smoke test
+expect:
+  # More lenient thresholds for smoke test
+  p95: 500
+  p99: 1000
+  max: 2000
